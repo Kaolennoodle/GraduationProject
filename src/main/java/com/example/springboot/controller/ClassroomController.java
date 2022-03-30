@@ -26,7 +26,7 @@ public class ClassroomController {
         return classroomService.save(classroom);
     }
 
-//查询所有数据
+    //查询所有数据
     @GetMapping
     public List<Classroom> findAll() {
         List<Classroom> list = classroomService.list();
@@ -34,17 +34,18 @@ public class ClassroomController {
         return list;
     }
 
-//按c_id删除
+    //按c_id删除
     @DeleteMapping("/{c_id}")
     public boolean delete(@PathVariable Integer c_id) {
         return classroomService.removeById(c_id);
     }
 
-//分页查询-MyBatis-Plus
+    //分页查询-MyBatis-Plus
     @GetMapping("/page")
     public IPage<Classroom> findPage(@RequestParam Integer pageNum,
                                      @RequestParam Integer pageSize,
                                      @RequestParam(defaultValue = "") String c_name,
+                                     @RequestParam(defaultValue = "") Integer c_volume,
                                      @RequestParam(defaultValue = "") Integer c_building,
                                      @RequestParam(defaultValue = "") Integer c_floor) {
         IPage<Classroom> page = new Page<>(pageNum, pageSize);
@@ -52,8 +53,12 @@ public class ClassroomController {
 
         //模糊查询
         queryWrapper.like("c_name", c_name);
-        queryWrapper.like("c_building", c_building);
-        queryWrapper.like("c_floor", c_floor);
+        if(c_volume != null)
+            queryWrapper.like("c_volume", c_volume);
+        if (c_building != null)
+            queryWrapper.like("c_building", c_building);
+        if (c_floor != null)
+            queryWrapper.like("c_floor", c_floor);
         return classroomService.page(page, queryWrapper);
     }
     /*@GetMapping("/page")
