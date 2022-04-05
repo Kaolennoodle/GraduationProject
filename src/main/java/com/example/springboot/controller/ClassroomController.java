@@ -21,9 +21,10 @@ public class ClassroomController {
     @Autowired
     private ClassroomService classroomService;
 
+    //新增或编辑
     @PostMapping
     public boolean save(@RequestBody Classroom classroom) { //新增或更新
-        return classroomService.save(classroom);
+        return classroomService.saveClassroom(classroom);
     }
 
     //查询所有数据
@@ -40,6 +41,12 @@ public class ClassroomController {
         return classroomService.removeById(c_id);
     }
 
+    //批量删除
+    @PostMapping("/del/batch")
+    public boolean deleteBatch(@RequestBody List<Integer> c_ids) {
+        return classroomService.removeBatchByIds(c_ids);
+    }
+
     //分页查询-MyBatis-Plus
     @GetMapping("/page")
     public IPage<Classroom> findPage(@RequestParam Integer pageNum,
@@ -54,11 +61,12 @@ public class ClassroomController {
         //模糊查询
         queryWrapper.like("c_name", c_name);
         if(c_volume != null)
-            queryWrapper.like("c_volume", c_volume);
+            queryWrapper.eq("c_volume", c_volume);
         if (c_building != null)
-            queryWrapper.like("c_building", c_building);
+            queryWrapper.eq("c_building", c_building);
         if (c_floor != null)
-            queryWrapper.like("c_floor", c_floor);
+            queryWrapper.eq("c_floor", c_floor);
+        queryWrapper.orderByDesc("c_create_time");
         return classroomService.page(page, queryWrapper);
     }
     /*@GetMapping("/page")

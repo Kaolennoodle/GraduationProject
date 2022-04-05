@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0/EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.springboot.mapper.UserMapper">
+    <update id="update">
+        update classroom
+        <set>
+            <if test="c_name != null">
+                c_name = #{c_name},
+            </if>
+            <if test="c_volumn != null">
+                c_volumn = #{c_volumn},
+            </if>
+            <if test="c_building != null">
+                c_building = #{c_building},
+            </if>
+            <if test="c_floor != null">
+                c_floor = #{c_floor},
+            </if>
+            <if test="c_address != null">
+                c_address = #{c_address},
+            </if>
+            <if test="c_admin_id != null">
+                c_admin_id = #{c_admin_id}
+            </if>
+        </set>
+        <where>
+            c_id = #{c_id}
+        </where>
+    </update>
+</mapper>

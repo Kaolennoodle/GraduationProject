@@ -2,7 +2,6 @@ package com.example.springboot.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.springboot.entity.Classroom;
-import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
