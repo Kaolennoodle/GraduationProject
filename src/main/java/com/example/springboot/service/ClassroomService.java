@@ -3,7 +3,6 @@ package com.example.springboot.service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.springboot.entity.Classroom;
 import com.example.springboot.mapper.ClassroomMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
