@@ -3,8 +3,6 @@ package com.example.springboot.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.springboot.entity.Classroom;
 
-import java.util.List;
-
 //@Mapper
 
 public interface ClassroomMapper extends BaseMapper<Classroom> {
