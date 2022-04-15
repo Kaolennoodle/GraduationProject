@@ -8,7 +8,7 @@
             <if test="c_name != null">
                 c_name = #{c_name},
             </if>
-            <if test="c_volumn != null">
+            <if test="c_volume != null">
                 c_volumn = #{c_volumn},
             </if>
             <if test="c_building != null">

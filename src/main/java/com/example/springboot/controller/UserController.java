@@ -3,9 +3,7 @@ package com.example.springboot.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.example.springboot.entity.Classroom;
 import com.example.springboot.entity.User;
-import com.example.springboot.service.ClassroomService;
 import com.example.springboot.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -50,32 +48,18 @@ public class UserController {
     // u_name u_stu_num u_nickname u_phone u_email u_type u_login_name
 //    分页查询-MyBatis-Plus
     @GetMapping("/page")
-    public IPage<User> findPage(@RequestParam Integer pageNum,
-                                @RequestParam Integer pageSize,
-                                @RequestParam(defaultValue = "") String u_name,
-                                @RequestParam(defaultValue = "") String u_stu_num,
-                                @RequestParam(defaultValue = "") String u_nickname,
-                                @RequestParam(defaultValue = "") String u_phone,
-                                @RequestParam(defaultValue = "") String u_email,
-                                @RequestParam(defaultValue = "") String u_type,
-                                @RequestParam(defaultValue = "") String u_login_name) {
+    public IPage<User> findPage(@RequestParam Integer pageNum, @RequestParam Integer pageSize, @RequestParam(defaultValue = "") String u_name, @RequestParam(defaultValue = "") String u_stu_num, @RequestParam(defaultValue = "") String u_nickname, @RequestParam(defaultValue = "") String u_phone, @RequestParam(defaultValue = "") String u_email, @RequestParam(defaultValue = "") String u_type, @RequestParam(defaultValue = "") String u_login_name) {
         IPage<User> page = new Page<>(pageNum, pageSize);
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 
         //模糊查询
         queryWrapper.like("u_name", u_name);
-        if (u_stu_num != null)
-            queryWrapper.eq("u_stu_num", u_stu_num);
-        if (u_nickname != null)
-            queryWrapper.like("u_nickname", u_nickname);
-        if (u_phone != null)
-            queryWrapper.eq("u_phone", u_phone);
-        if (u_email != null)
-            queryWrapper.eq("u_email", u_email);
-        if (u_type != null)
-            queryWrapper.eq("u_type", u_type);
-        if (u_login_name != null)
-            queryWrapper.like("u_login_name", u_login_name);
+        if (u_stu_num != null) queryWrapper.eq("u_stu_num", u_stu_num);
+        if (u_nickname != null) queryWrapper.like("u_nickname", u_nickname);
+        if (u_phone != null) queryWrapper.eq("u_phone", u_phone);
+        if (u_email != null) queryWrapper.eq("u_email", u_email);
+        if (u_type != null) queryWrapper.eq("u_type", u_type);
+        if (u_login_name != null) queryWrapper.like("u_login_name", u_login_name);
         queryWrapper.orderByDesc("u_create_time");
         return userService.page(page, queryWrapper);
     }
