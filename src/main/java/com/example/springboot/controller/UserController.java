@@ -53,14 +53,15 @@ public class UserController {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 
         //模糊查询
-        queryWrapper.like("u_name", u_name);
-        if (u_stu_num != null) queryWrapper.eq("u_stu_num", u_stu_num);
-        if (u_nickname != null) queryWrapper.like("u_nickname", u_nickname);
-        if (u_phone != null) queryWrapper.eq("u_phone", u_phone);
-        if (u_email != null) queryWrapper.eq("u_email", u_email);
-        if (u_type != null) queryWrapper.eq("u_type", u_type);
-        if (u_login_name != null) queryWrapper.like("u_login_name", u_login_name);
+        if (!u_name.equals("")) queryWrapper.like("u_name", u_name);
+        if (!u_stu_num.equals("")) queryWrapper.eq("u_stu_num", u_stu_num);
+        if (!u_nickname.equals("")) queryWrapper.like("u_nickname", u_nickname);
+        if (!u_phone.equals("")) queryWrapper.eq("u_phone", u_phone);
+        if (!u_email.equals("")) queryWrapper.eq("u_email", u_email);
+        if (!u_type.equals("")) queryWrapper.eq("u_type", u_type);
+        if (!u_login_name.equals("")) queryWrapper.like("u_login_name", u_login_name);
         queryWrapper.orderByDesc("u_create_time");
+        System.out.println(userService.page(page, queryWrapper));
         return userService.page(page, queryWrapper);
     }
 }

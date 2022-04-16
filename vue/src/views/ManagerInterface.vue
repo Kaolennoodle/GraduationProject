@@ -29,8 +29,8 @@
 <style>
 
 .el-header {
-  background-color: rgb(230, 255, 255);
-  color: #333;
+  background-image: linear-gradient(to bottom right, rgb(13, 68, 200), rgb(33, 147, 255));
+
   line-height: 60px;
 }
 

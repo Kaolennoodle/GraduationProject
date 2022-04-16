@@ -1,8 +1,8 @@
 <template>
 
-  <div style="text-align: left; font-size: 12px; display: flex; ">
+  <div style="text-align: left; font-size: 12px; display: flex;">
     <div style="flex: 1; font-size: 18px">
-      <span :class="collapseBtnClass" style="cursor: pointer" @click="changeCollapse">   智能教室管理系统</span>
+      <span :class="collapseBtnClass" style="cursor: pointer; color: white" @click="changeCollapse">  智能教室管理系统</span>
       <!--      -->
 
     </div>
@@ -31,15 +31,9 @@ export default {
       paths: []
     }
   },
-  methods: {
+  function: {
     changeCollapse() {
-      if (this.isCollapse == true) {
-        this.isCollapse = false
-        this.collapseBtnClass = 'el-icon-s-fold'
-      } else if (this.isCollapse == false) {
-        this.isCollapse = true
-        this.collapseBtnClass = 'el-icon-s-unfold'
-      }
+
     }
   }
 }

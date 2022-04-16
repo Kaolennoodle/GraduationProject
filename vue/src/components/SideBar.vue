@@ -4,8 +4,8 @@
            :collapse="isCollapse"
            style="min-height: 100%; box-shadow: 2px 0 6px rgb(150 150 150)"
            router>
-    <div style="height: 60px; line-height: 60px; text-align: center; background-color:#DDEBFF;">
-      <img src="../assets/logo-nn.png" alt="" style="width: 50px; margin-top: 5px">
+    <div style="height: 60px; line-height: 60px; text-align: center;">
+      <img src="../assets/logo.png" alt="" style="width: 50px; margin-top: 5px">
     </div>
 
     <!--    左侧菜单-->
