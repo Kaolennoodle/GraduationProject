@@ -16,8 +16,8 @@ public class UserService extends ServiceImpl<UserMapper, User> {
 
     public boolean login(UserDTO userDTO) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("username", userDTO.getUsername());
-        queryWrapper.eq("password", userDTO.getPassword());
+        queryWrapper.eq("u_login_name", userDTO.getUsername());
+        queryWrapper.eq("u_password", userDTO.getPassword());
         User one = getOne(queryWrapper);
         return one != null;
     }

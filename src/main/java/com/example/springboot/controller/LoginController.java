@@ -3,6 +3,7 @@ package com.example.springboot.controller;
 
 import com.example.springboot.controller.dto.UserDTO;
 import com.example.springboot.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +14,7 @@ import javax.annotation.Resource;
 @RestController
 @RequestMapping("/login")
 public class LoginController {
-    @Resource
+    @Autowired
     private UserService userService;
 
     @PostMapping

@@ -4,8 +4,8 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/MyDatabase?serverTimezone=GMT%2b8
-    username: root
+    url: jdbc:mysql://www.littlemonk.top:3306/MyDatabase?serverTimezone=GMT%2b8
+    username: hammond
     password: 12345678
 
 mybatis:
