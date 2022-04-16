@@ -3,7 +3,6 @@
   <div style="text-align: left; font-size: 12px; display: flex;">
     <div style="flex: 1; font-size: 18px">
       <span :class="collapseBtnClass" style="cursor: pointer; color: white" @click="changeCollapse">  智能教室管理系统</span>
-      <!--      -->
 
     </div>
     <el-dropdown style="cursor: pointer">
@@ -21,19 +20,15 @@
 
 export default {
   name: "Header",
-  props: {
-    collapseBtnClass: String,
-    isCollapse: Boolean,
-
-  },
+  props: ['collapseBtnClass'],
   data() {
     return {
       paths: []
     }
   },
-  function: {
+  methods: {
     changeCollapse() {
-
+      this.$parent.$parent.$parent.$parent.changeCollapse()
     }
   }
 }

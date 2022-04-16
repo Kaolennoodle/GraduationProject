@@ -5,7 +5,7 @@
            style="min-height: 100%; box-shadow: 2px 0 6px rgb(150 150 150)"
            router>
     <div style="height: 60px; line-height: 60px; text-align: center;">
-      <img src="../assets/logo.png" alt="" style="width: 50px; margin-top: 5px">
+      <img src="../assets/logo.png" alt="" style="width: 40px; margin-top: 15px">
     </div>
 
     <!--    左侧菜单-->

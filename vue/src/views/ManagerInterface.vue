@@ -4,7 +4,7 @@
   <!--  左侧菜单栏-->
   <el-container style="min-height: 100vh">
 
-    <SideBar :isCollapse="isCollapse"/>
+    <SideBar/>
 
     <el-container>
 
@@ -84,9 +84,11 @@ export default {
     changeCollapse() {
       if (this.isCollapse == true) {
         this.isCollapse = false
+        console.log("菜单此时应为展开状态")
         this.collapseBtnClass = 'el-icon-s-fold'
-      } else if (this.isCollapse == false) {
+      } else if (isCollapse == false) {
         this.isCollapse = true
+        console.log("菜单此时应为折叠状态")
         this.collapseBtnClass = 'el-icon-s-unfold'
       }
     },
