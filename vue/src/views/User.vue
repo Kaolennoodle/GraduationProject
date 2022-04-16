@@ -19,7 +19,7 @@
       <el-input
           suffix-icon="el-icon-user-solid"
           placeholder="学号"
-          v-model="u_stuNum"
+          v-model="u_stu_num"
           style="width: 100px; margin-left: 5px">
       </el-input>
       <el-input
@@ -40,7 +40,7 @@
           v-model="u_email"
           style="width: 150px; margin-left: 5px">
       </el-input>
-      <el-select v-model="form.utype" placeholder="用户类型" style="margin-left: 5px">
+      <el-select v-model="u_type" placeholder="用户类型" style="margin-left: 5px; width: 120px">
         <el-option
             v-for="item in options"
             :key="item.value"
@@ -85,30 +85,42 @@
           type="selection"
           width="39">
       </el-table-column>
-      <el-table-column prop="uname" label="姓名" width="140">
+      <el-table-column prop="uname" label="姓名" width="70">
       </el-table-column>
       <el-table-column prop="ustuNum" label="学号" width="120">
       </el-table-column>
-      <el-table-column prop="unickname" label="昵称">
+      <el-table-column prop="unickname" label="昵称" width="100">
       </el-table-column>
-      <el-table-column prop="uphone" label="电话">
+      <el-table-column prop="uphone" label="电话" width="110">
       </el-table-column>
-      <el-table-column prop="uemail" label="邮箱">
+      <el-table-column prop="uemail" label="邮箱" width="170">
       </el-table-column>
-      <el-table-column prop="utype" label="用户类型">
+      <el-table-column prop="utype" label="用户类型" width="70">
       </el-table-column>
-      <el-table-column prop="uloginName" label="登录账号">
+      <el-table-column prop="uloginName" label="登录账号" width="160">
       </el-table-column>
-<!--      uname ustunum unickname uphone uemail utype uloginname-->
+      <!--      uname ustunum unickname uphone uemail utype uloginname-->
       <el-table-column
           label="操作"
           fixed="right"
-      width="290px">
+          width="290px">
         <template v-slot:default="scope">
           <el-button type="primary" icon="el-icon-edit" @click="handleEdit(scope.row)">编辑</el-button>
-          <el-button type="primary" icon="el-icon-refresh">重置密码</el-button>
           <el-popconfirm
-              style="margin-left: 10px"
+              style="margin-left: 5px"
+              confirm-button-text='重置'
+              confirm-button-type="warning"
+              cancel-button-text='取消'
+              confirm-button-size="mini"
+              icon="el-icon-info"
+              icon-color="yellow"
+              title="此操作将重置该用户的密码，是否继续？"
+              @confirm="resetPassword(scope.row)"
+          >
+          <el-button type="warning" icon="el-icon-refresh" slot="reference">重置密码</el-button>
+          </el-popconfirm>
+          <el-popconfirm
+              style="margin-left: 5px"
               confirm-button-text='删除'
               confirm-button-type="danger"
               cancel-button-text='取消'
@@ -161,7 +173,7 @@
         <el-form-item label="用户类型">
           <el-select v-model="form.utype" placeholder="用户类型">
             <el-option
-                v-for="item in options"
+                v-for="item in options2"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value">
@@ -191,14 +203,16 @@ export default {
   data() {
     return {
       tableData: [],
+      records: [],
       loading: true,
       total: 0,
       pageNum: 1,
       pageSize: 10,
       form: {},
       multipleSelection: [],
+      u_id: "",
       u_name: "",
-      u_stuNum: "",
+      u_stu_num: "",
       u_nickname: "",
       u_phone: "",
       u_email: "",
@@ -206,6 +220,23 @@ export default {
       u_loginName: "",
       dialogFormVisible: false,
       options: [{
+        value: '',
+        label: '全部'
+      }, {
+        value: '1',
+        label: '学生'
+      }, {
+        value: '2',
+        label: '教师'
+      }, {
+        value: '3',
+        label: '教室管理员'
+      }, {
+        value: '4',
+        label: '系统管理员'
+      }
+      ],
+      options2: [{
         value: '1',
         label: '学生'
       }, {
@@ -259,6 +290,24 @@ export default {
       })
     },
 
+    resetPassword(row) {
+      console.log(row)
+      console.log(row.uid)
+      request.post("/user/reset/pwd/" + row.uid).then(res => {
+        if (res) {
+          this.$message.success({
+            showClose: true,
+            message: "操作成功！"
+          })
+          this.load()
+        } else {
+          this.$message.error({
+            showClose: true,
+            message: "操作失败！请稍后再试"
+          })
+        }
+      })
+    },
 
     //批量删除
     delBatch() {
@@ -290,7 +339,6 @@ export default {
       });
     },
 
-
     handleSelectionChange(val) {
       console.log(val)
       this.multipleSelection = val
@@ -306,11 +354,9 @@ export default {
       this.load()
     },
 
-
     // 重新加载表格数据
     load() {
       this.loading = true
-      // uname ustunum unickname uphone uemail utype uloginname
       request.get("http://localhost:8081/user/page", {
         params: {
           pageNum: this.pageNum,
@@ -328,19 +374,13 @@ export default {
         this.tableData = res.records
         this.total = res.total
       })
-      /*fetch("http://localhost:8081/classroom/page?pageNum=" + this.pageNum + "&pageSize=" + this.pageSize)
-          .then(res => res.json()).then(res => {
-        console.log(res)
-        this.tableData = res.data
-        this.total = res.total
-      })*/
       this.loading = false
     },
 
 
     // 新增或编辑的保存
     save() {
-      request.post("http://localhost:8081/user", this.form).then(res => {
+      request.post("/user", this.form).then(res => {
         if (res) {
           this.dialogFormVisible = false
           this.$message.success({

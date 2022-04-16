@@ -45,7 +45,6 @@ public class UserController {
         return userService.removeBatchByIds(c_ids);
     }
 
-    // u_name u_stu_num u_nickname u_phone u_email u_type u_login_name
 //    分页查询-MyBatis-Plus
     @GetMapping("/page")
     public IPage<User> findPage(@RequestParam Integer pageNum, @RequestParam Integer pageSize, @RequestParam(defaultValue = "") String u_name, @RequestParam(defaultValue = "") String u_stu_num, @RequestParam(defaultValue = "") String u_nickname, @RequestParam(defaultValue = "") String u_phone, @RequestParam(defaultValue = "") String u_email, @RequestParam(defaultValue = "") String u_type, @RequestParam(defaultValue = "") String u_login_name) {
@@ -63,5 +62,14 @@ public class UserController {
         queryWrapper.orderByDesc("u_create_time");
         System.out.println(userService.page(page, queryWrapper));
         return userService.page(page, queryWrapper);
+    }
+
+    //重置用户密码
+    @PostMapping("/reset/pwd/{u_id}")
+    public boolean resetPwd(@PathVariable Integer u_id) {
+        User user = new User();
+        user.setUId(u_id);
+        user.setUPassword("12345678");
+        return userService.saveUser(user);
     }
 }
