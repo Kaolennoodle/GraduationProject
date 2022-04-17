@@ -9,7 +9,10 @@
     </div>
 
     <!--    左侧菜单-->
-    <el-menu-item index="/"><i class="el-icon-s-home"></i>主页</el-menu-item>
+    <el-menu-item index="/">
+      <i class="el-icon-s-home"></i>
+      <span slot="title">主页</span>
+    </el-menu-item>
     <el-submenu index="2">
       <template slot="title">
         <i class="el-icon-s-management"></i>

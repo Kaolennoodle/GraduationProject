@@ -16,11 +16,11 @@ const routes = [
     component: () => import('../views/ManagerInterface.vue'),
     redirect: "/home",
     children: [
-      {path: 'home', name: 'Home', meta: {indexName: "首页"}, component: () => import('../views/Home.vue')},
-      {path: 'user', name: 'User', meta: {indexName: "用户管理"}, component: () => import('../views/User.vue')},
-      {path: 'settings', name: 'Settings', meta: {indexName: "系统设置"}, component: () => import('../views/Settings.vue')},
-      {path: 'log', name: 'Log', meta: {indexName: "使用记录"}, component: () => import('../views/Log.vue')},
-      {path: 'classroom', name: 'Classroom', meta: {indexName: "教室管理"}, component: () => import('../views/Classroom.vue')}
+      {path: 'home', name: 'Home', meta: {indexName: "首页"}, component: () => import('../components/Home.vue')},
+      {path: 'user', name: 'User', meta: {indexName: "用户管理"}, component: () => import('../components/User.vue')},
+      {path: 'settings', name: 'Settings', meta: {indexName: "系统设置"}, component: () => import('../components/Settings.vue')},
+      {path: 'log', name: 'Log', meta: {indexName: "使用记录"}, component: () => import('../components/Log.vue')},
+      {path: 'classroom', name: 'Classroom', meta: {indexName: "教室管理"}, component: () => import('../components/Classroom.vue')}
     ]
   },
   {
