@@ -8,6 +8,8 @@ import lombok.Data;
 
 @Data
 public class UserDTO {
-    private String username;
-    private String password;
+    private String uLoginName;
+    private String uPassword;
+    private String uNickname;
+    private String uAvatarPath;
 }
