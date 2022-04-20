@@ -22,8 +22,10 @@ public class LoginController {
 
     @PostMapping
     public Result login(@RequestBody UserDTO userDTO) {
+        System.out.println("The Object we got is : " + userDTO);
         String username = userDTO.getULoginName();
         String password = userDTO.getUPassword();
+        System.out.println("The username is : " + username + " And the password is :" + password);
         if (StrUtil.isBlank(username) || StrUtil.isBlank(password)) {
             return Result.error(Constants.CODE_400, "参数错误");
         }
