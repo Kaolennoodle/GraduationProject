@@ -12,4 +12,5 @@ public class UserDTO {
     private String uPassword;
     private String uNickname;
     private String uAvatarPath;
+    private String token;
 }

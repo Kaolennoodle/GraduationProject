@@ -15,3 +15,8 @@ mybatis:
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+files:
+  upload:
+    path: D:/毕业设计项目临时目录/files/

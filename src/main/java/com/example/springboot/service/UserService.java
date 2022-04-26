@@ -9,10 +9,13 @@ import com.example.springboot.controller.dto.UserDTO;
 import com.example.springboot.entity.User;
 import com.example.springboot.exception.ServiceException;
 import com.example.springboot.mapper.UserMapper;
+import com.example.springboot.utils.TokenUtils;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService extends ServiceImpl<UserMapper, User> {
+    
     public boolean saveUser(User user) {
         return saveOrUpdate(user);
     }
@@ -29,6 +32,8 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         }
         if (one != null) {
             BeanUtil.copyProperties(one, userDTO, true);
+            //设置token
+            userDTO.setToken(TokenUtils.generateToken(one.getUId().toString(), one.getUPassword()));
             return userDTO;
         } else {
             throw new ServiceException(Constants.CODE_402, "用户名或密码错误");
