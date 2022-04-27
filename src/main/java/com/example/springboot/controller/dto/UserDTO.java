@@ -8,9 +8,11 @@ import lombok.Data;
 
 @Data
 public class UserDTO {
+    private Integer uId;
     private String uLoginName;
     private String uPassword;
     private String uNickname;
+    private Integer uType;
     private String uAvatarPath;
     private String token;
 }

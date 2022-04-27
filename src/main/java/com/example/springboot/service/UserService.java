@@ -34,6 +34,7 @@ public class UserService extends ServiceImpl<UserMapper, User> {
             BeanUtil.copyProperties(one, userDTO, true);
             //设置token
             userDTO.setToken(TokenUtils.generateToken(one.getUId().toString(), one.getUPassword()));
+            userDTO.setUPassword(null);
             return userDTO;
         } else {
             throw new ServiceException(Constants.CODE_402, "用户名或密码错误");

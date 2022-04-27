@@ -20,7 +20,6 @@ public class LoginController {
     public Result login(@RequestBody UserDTO userDTO) {
         String username = userDTO.getULoginName();
         String password = userDTO.getUPassword();
-        System.out.println("Output from LoginController: " + userDTO);
         if (StrUtil.isBlank(username) || StrUtil.isBlank(password)) {
             return Result.error(Constants.CODE_400, "用户名或密码为空！");
         }
