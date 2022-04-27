@@ -21,13 +21,20 @@ public class ClassroomController {
     @Autowired
     private ClassroomService classroomService;
 
-    //新增或编辑
+    /**
+     * 新增或编辑
+     * @param classroom
+     * @return
+     */
     @PostMapping
     public boolean save(@RequestBody Classroom classroom) { //新增或更新
         return classroomService.saveClassroom(classroom);
     }
 
-    //查询所有数据
+    /**
+     * 查询所有数据
+     * @return
+     */
     @GetMapping
     public List<Classroom> findAll() {
         List<Classroom> list = classroomService.list();
@@ -35,19 +42,36 @@ public class ClassroomController {
         return list;
     }
 
-    //按c_id删除
+    /**
+     * 按c_id删除
+     * @param c_id
+     * @return
+     */
     @DeleteMapping("/{c_id}")
     public boolean delete(@PathVariable Integer c_id) {
         return classroomService.removeById(c_id);
     }
 
-    //批量删除
+    /**
+     * 批量删除
+     * @param c_ids
+     * @return
+     */
     @PostMapping("/del/batch")
     public boolean deleteBatch(@RequestBody List<Integer> c_ids) {
         return classroomService.removeBatchByIds(c_ids);
     }
 
-    //分页查询-MyBatis-Plus
+    /**
+     * 分页查询-MyBatis-Plus
+     * @param pageNum
+     * @param pageSize
+     * @param c_name
+     * @param c_volume
+     * @param c_building
+     * @param c_floor
+     * @return
+     */
     @GetMapping("/page")
     public IPage<Classroom> findPage(@RequestParam Integer pageNum,
                                      @RequestParam Integer pageSize,
@@ -69,15 +93,4 @@ public class ClassroomController {
         queryWrapper.orderByDesc("c_create_time");
         return classroomService.page(page, queryWrapper);
     }
-    /*@GetMapping("/page")
-    public Map<String, Object> findPage(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
-        pageNum = (pageNum - 1) * pageSize;
-        List<Classroom> data = classroomMapper.selectPage(pageNum, pageSize);
-        Integer total = classroomMapper.selectTotal();
-        System.out.println(data);
-        Map<String, Object> res = new HashMap<>();
-        res.put("data", data);
-        res.put("total", total);
-        return res;
-    }*/
 }

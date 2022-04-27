@@ -10,9 +10,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class InterceptorConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(jwtInterceptor())
-                .addPathPatterns("/**")
-                .excludePathPatterns("/login", "/register", "/file/**"); //拦截所有请求，通过判断token是否合法来决定是否需要登录
+//        registry.addInterceptor(jwtInterceptor())
+//                .addPathPatterns("/**")
+//                .excludePathPatterns("/login", "/register", "/file/**"); //拦截所有请求，通过判断token是否合法来决定是否需要登录
     }
 
     @Bean
