@@ -10,6 +10,7 @@ import com.example.springboot.controller.dto.UserDTO;
 import com.example.springboot.entity.User;
 import com.example.springboot.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,14 +35,21 @@ public class UserController {
             return userService.register(userDTO);
     }
 
-    //新增或编辑
+    /**
+     * 新增或编辑
+     * @param user
+     * @return
+     */
     @PostMapping
     public boolean save(@RequestBody User user) { //新增或更新
         System.out.println("Output from UserController: " + user);
         return userService.saveUser(user);
     }
 
-    //查询所有数据
+    /**
+     * 查询所有数据
+     * @return
+     */
     @GetMapping
     public List<User> findAll() {
         List<User> list = userService.list();
@@ -49,25 +57,58 @@ public class UserController {
         return list;
     }
 
-    //按u_id删除
-    @DeleteMapping("/{c_id}")
-    public boolean delete(@PathVariable Integer c_id) {
-        return userService.removeById(c_id);
+    /**
+     * 按u_id删除
+     * @param u_id
+     * @return
+     */
+    @DeleteMapping("/{u_id}")
+    public boolean delete(@PathVariable Integer u_id) {
+        return userService.removeById(u_id);
     }
 
-    //批量删除
+    /**
+     * 批量删除
+     * @param c_ids
+     * @return
+     */
     @PostMapping("/del/batch")
     public boolean deleteBatch(@RequestBody List<Integer> c_ids) {
         return userService.removeBatchByIds(c_ids);
     }
 
-    //    分页查询-MyBatis-Plus
+    /**
+     * 分页查询-MyBatis-Plus
+     * @param pageNum
+     * @param pageSize
+     * @param u_name
+     * @param u_stu_num
+     * @param u_nickname
+     * @param u_phone
+     * @param u_email
+     * @param u_type
+     * @param u_login_name
+     * @return
+     */
     @GetMapping("/page")
-    public IPage<User> findPage(@RequestParam Integer pageNum, @RequestParam Integer pageSize, @RequestParam(defaultValue = "") String u_name, @RequestParam(defaultValue = "") String u_stu_num, @RequestParam(defaultValue = "") String u_nickname, @RequestParam(defaultValue = "") String u_phone, @RequestParam(defaultValue = "") String u_email, @RequestParam(defaultValue = "") String u_type, @RequestParam(defaultValue = "") String u_login_name) {
+    public Result findPage(@RequestParam Integer pageNum,
+                                @RequestParam Integer pageSize,
+                                @RequestParam(defaultValue = "") Integer u_id,
+                                @RequestParam(defaultValue = "") String u_name,
+                                @RequestParam(defaultValue = "") String u_stu_num,
+                                @RequestParam(defaultValue = "") String u_nickname,
+                                @RequestParam(defaultValue = "") String u_phone,
+                                @RequestParam(defaultValue = "") String u_email,
+                                @RequestParam(defaultValue = "") String u_type,
+                                @RequestParam(defaultValue = "") String u_login_name) {
         IPage<User> page = new Page<>(pageNum, pageSize);
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 
+
+        System.out.println("================> u_login_time = " + u_login_name + "<================");
+
         //模糊查询
+        if (!(u_id == null)) queryWrapper.eq("u_id", u_id);
         if (!u_name.equals("")) queryWrapper.like("u_name", u_name);
         if (!u_stu_num.equals("")) queryWrapper.eq("u_stu_num", u_stu_num);
         if (!u_nickname.equals("")) queryWrapper.like("u_nickname", u_nickname);
@@ -76,10 +117,14 @@ public class UserController {
         if (!u_type.equals("")) queryWrapper.eq("u_type", u_type);
         if (!u_login_name.equals("")) queryWrapper.eq("u_login_name", u_login_name);
         queryWrapper.orderByDesc("u_create_time");
-        return userService.page(page, queryWrapper);
+        return Result.success(userService.page(page, queryWrapper));
     }
 
-    //重置用户密码
+    /**
+     * 重置用户密码
+     * @param u_id
+     * @return
+     */
     @PostMapping("/reset/pwd/{u_id}")
     public boolean resetPwd(@PathVariable Integer u_id) {
         User user = new User();
@@ -87,4 +132,6 @@ public class UserController {
         user.setUPassword("12345678");
         return userService.saveUser(user);
     }
+
+
 }

@@ -9,4 +9,5 @@ public interface Constants {
     String CODE_500 = "500"; //系统错误
     String CODE_501 = "501"; //用户登录重名
     String CODE_502 = "502"; //账号已被注册
+    String CODE_600 = "600"; //预约失败
 }
