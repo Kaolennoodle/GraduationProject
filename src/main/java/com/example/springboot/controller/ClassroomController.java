@@ -4,15 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.springboot.entity.Classroom;
-import com.example.springboot.mapper.ClassroomMapper;
 import com.example.springboot.service.ClassroomService;
-import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/classroom")
@@ -23,6 +19,7 @@ public class ClassroomController {
 
     /**
      * 新增或编辑
+     *
      * @param classroom
      * @return
      */
@@ -33,6 +30,7 @@ public class ClassroomController {
 
     /**
      * 查询所有数据
+     *
      * @return
      */
     @GetMapping
@@ -44,6 +42,7 @@ public class ClassroomController {
 
     /**
      * 按c_id删除
+     *
      * @param c_id
      * @return
      */
@@ -54,6 +53,7 @@ public class ClassroomController {
 
     /**
      * 批量删除
+     *
      * @param c_ids
      * @return
      */
@@ -64,6 +64,7 @@ public class ClassroomController {
 
     /**
      * 分页查询-MyBatis-Plus
+     *
      * @param pageNum
      * @param pageSize
      * @param c_name
@@ -84,7 +85,7 @@ public class ClassroomController {
 
         //模糊查询
         queryWrapper.like("c_name", c_name);
-        if(c_volume != null)
+        if (c_volume != null)
             queryWrapper.eq("c_volume", c_volume);
         if (c_building != null)
             queryWrapper.eq("c_building", c_building);

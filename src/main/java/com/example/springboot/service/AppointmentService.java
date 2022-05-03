@@ -8,7 +8,6 @@ import com.example.springboot.entity.Appointment;
 import com.example.springboot.mapper.AppointmentMapper;
 import org.springframework.stereotype.Service;
 
-import java.awt.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,6 +48,9 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
         newA.setAStartTime(df.parse(startTime));
         newA.setAEndTime(df.parse(endTime));
 
+        if (newA.getAStartTime().compareTo(newA.getAEndTime()) >= 0)
+            return Result.error(Constants.CODE_500, "预约结束时间不能早于预约开始时间");
+
         //查询出目前所有本教室的预约
         QueryWrapper<Appointment> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("c_id", cid);
@@ -59,9 +61,17 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
 //            System.out.println("newA.getAStartTime = " + newA.getAStartTime());
 //            System.out.println("oldA.getAStartTime = " + oldA.getAStartTime());
 //            System.out.println("newA.getAStartTime.compareTo(oldA.getAStartTime) = " + newA.getAStartTime().compareTo(oldA.getAStartTime()));
-            if ((newA.getAStartTime().compareTo(oldA.getAStartTime()) >= 0 && newA.getAStartTime().compareTo(oldA.getAEndTime()) <= 0)
-            || (newA.getAEndTime().compareTo(oldA.getAStartTime()) >= 0 && newA.getAEndTime().compareTo(oldA.getAEndTime()) <= 0)) {
-                return Result.error(Constants.CODE_500, "预约时间与其他预约冲突");
+            int i1 = newA.getAStartTime().compareTo(oldA.getAStartTime());
+            int i2 = newA.getAStartTime().compareTo(oldA.getAEndTime());
+            int i3 = newA.getAEndTime().compareTo(oldA.getAStartTime());
+            int i4 = newA.getAEndTime().compareTo(oldA.getAEndTime());
+            if ((i1 > 0 && i2 < 0 && i4 > 0) ||
+                    (i1 < 0 && i3 > 0 && i4 < 0) ||
+                    (i1 > 0 && i4 < 0) ||
+                    (i1 < 0 && i4 > 0) ||
+                    (i1 == 0 && i4 < 0) ||
+                    (i1 > 0 && i4 == 0)) {
+                return Result.error(Constants.CODE_500, "预约时间与已有预约冲突");
             }
         }
         if (save(newA))
