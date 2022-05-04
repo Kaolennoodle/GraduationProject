@@ -94,4 +94,14 @@ public class ClassroomController {
         queryWrapper.orderByDesc("c_create_time");
         return classroomService.page(page, queryWrapper);
     }
+
+    /**
+     * 通过c_id查询教室信息
+     * @param c_id
+     * @return
+     */
+    @GetMapping("/{c_id}")
+    public Classroom getById(@PathVariable Integer c_id) {
+        return classroomService.getById(c_id);
+    }
 }

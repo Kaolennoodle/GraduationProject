@@ -133,5 +133,24 @@ public class UserController {
         return userService.saveUser(user);
     }
 
+    /**
+     * 通过id查询单个用户信息
+     * @param u_id
+     * @return
+     */
+    @GetMapping("/{u_id}")
+    public User getById(@PathVariable Integer u_id) {
+        return userService.getById(u_id);
+    }
+
+    /**
+     * 通过id查询用户姓名
+     * @param u_id
+     * @return
+     */
+    @GetMapping("/name/{u_id}")
+    public String getNameById(@PathVariable Integer u_id) {
+        return userService.getById(u_id).getUName();
+    }
 
 }

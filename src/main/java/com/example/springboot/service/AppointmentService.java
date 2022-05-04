@@ -55,8 +55,9 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
         QueryWrapper<Appointment> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("c_id", cid);
         List<Appointment> appointmentList = list(queryWrapper);
-        System.out.println("The appointments we got are : " + appointmentList);
-
+        if(appointmentList.toArray().length == 0)
+            if (save(newA))
+                return Result.success();
         for (Appointment oldA : appointmentList) {
 //            System.out.println("newA.getAStartTime = " + newA.getAStartTime());
 //            System.out.println("oldA.getAStartTime = " + oldA.getAStartTime());
@@ -65,17 +66,11 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
             int i2 = newA.getAStartTime().compareTo(oldA.getAEndTime());
             int i3 = newA.getAEndTime().compareTo(oldA.getAStartTime());
             int i4 = newA.getAEndTime().compareTo(oldA.getAEndTime());
-            if ((i1 > 0 && i2 < 0 && i4 > 0) ||
-                    (i1 < 0 && i3 > 0 && i4 < 0) ||
-                    (i1 > 0 && i4 < 0) ||
-                    (i1 < 0 && i4 > 0) ||
-                    (i1 == 0 && i4 < 0) ||
-                    (i1 > 0 && i4 == 0)) {
-                return Result.error(Constants.CODE_500, "预约时间与已有预约冲突");
+            if ((i1 < 0 && i3 < 0) || (i2 > 0 && i4 > 0)) {
+                if (save(newA))
+                    return Result.success();
             }
         }
-        if (save(newA))
-            return Result.success();
-        return Result.error(Constants.CODE_500, "系统错误(新建预约失败)");
+        return Result.error(Constants.CODE_500, "预约时间与已有预约冲突");
     }
 }

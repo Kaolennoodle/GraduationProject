@@ -5,7 +5,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.springboot.common.Result;
 import com.example.springboot.entity.Appointment;
+import com.example.springboot.entity.User;
 import com.example.springboot.service.AppointmentService;
+import com.example.springboot.service.ClassroomService;
+import com.example.springboot.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +21,10 @@ public class AppointmentController {
 
     @Autowired
     private AppointmentService appointmentService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private ClassroomService classroomService;
 
     /**
      * 新建预约
@@ -60,23 +67,31 @@ public class AppointmentController {
     }
 
     @GetMapping("/page")
-    public IPage<Appointment> findPage(@RequestParam Integer pageNum,
-                                       @RequestParam Integer pageSize,
-                                       @RequestParam(defaultValue = "") Integer u_id,
-                                       @RequestParam(defaultValue = "") Integer c_id,
-                                       @RequestParam(defaultValue = "") String a_date,
-                                       @RequestParam(defaultValue = "") String a_time,
-                                       @RequestParam(defaultValue = "") String a_start_time,
-                                       @RequestParam(defaultValue = "") String a_end_time) {
+    public Result findPage(@RequestParam Integer pageNum,
+                           @RequestParam Integer pageSize,
+                           @RequestParam(defaultValue = "") String u_name,
+                           @RequestParam(defaultValue = "") String c_name,
+                           @RequestParam(defaultValue = "") String a_date,
+                           @RequestParam(defaultValue = "") String a_time,
+                           @RequestParam(defaultValue = "") String a_start_time,
+                           @RequestParam(defaultValue = "") String a_end_time) {
 
         IPage<Appointment> page = new Page<>(pageNum, pageSize);
-        QueryWrapper<Appointment> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<Appointment> appointmentQueryWrapper = new QueryWrapper<>();
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
 
-        if (u_id != null)
-            queryWrapper.eq("u_id", u_id);
-        if (c_id != null)
-            queryWrapper.eq("c_id", c_id);
+        List<User> userList;
+        System.out.println("-------------------------------------" + u_name.length());
+        if (u_name.length() > 0) {
+            userQueryWrapper.like("u_name", u_name);
+            userList = userService.list(userQueryWrapper);
+            for (User user : userList) {
+                appointmentQueryWrapper.eq("u_id", user.getUId());
+            }
+        }
+//        if (c_name != null)
+//            appointmentQueryWrapper.like("c_id", c_name);
 
-        return appointmentService.page(page, queryWrapper);
+        return Result.success(appointmentService.page(page, appointmentQueryWrapper));
     }
 }
