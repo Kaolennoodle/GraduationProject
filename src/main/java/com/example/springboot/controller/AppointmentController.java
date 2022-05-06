@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.springboot.common.Result;
 import com.example.springboot.entity.Appointment;
+import com.example.springboot.entity.Classroom;
 import com.example.springboot.entity.User;
 import com.example.springboot.service.AppointmentService;
 import com.example.springboot.service.ClassroomService;
@@ -69,6 +70,7 @@ public class AppointmentController {
     @GetMapping("/page")
     public Result findPage(@RequestParam Integer pageNum,
                            @RequestParam Integer pageSize,
+                           @RequestParam(defaultValue = "") Integer u_id,
                            @RequestParam(defaultValue = "") String u_name,
                            @RequestParam(defaultValue = "") String c_name,
                            @RequestParam(defaultValue = "") String a_date,
@@ -79,9 +81,14 @@ public class AppointmentController {
         IPage<Appointment> page = new Page<>(pageNum, pageSize);
         QueryWrapper<Appointment> appointmentQueryWrapper = new QueryWrapper<>();
         QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        QueryWrapper<Classroom> classroomQueryWrapper = new QueryWrapper<>();
 
         List<User> userList;
-        System.out.println("-------------------------------------" + u_name.length());
+        List<Classroom> classroomList;
+
+        if (u_id != null)
+            appointmentQueryWrapper.eq("u_id", u_id);
+
         if (u_name.length() > 0) {
             userQueryWrapper.like("u_name", u_name);
             userList = userService.list(userQueryWrapper);
@@ -89,9 +96,25 @@ public class AppointmentController {
                 appointmentQueryWrapper.eq("u_id", user.getUId());
             }
         }
-//        if (c_name != null)
-//            appointmentQueryWrapper.like("c_id", c_name);
-
+        if (c_name.length() > 0) {
+            classroomQueryWrapper.like("c_name", c_name);
+            classroomList = classroomService.list(classroomQueryWrapper);
+            for (Classroom classroom : classroomList) {
+                appointmentQueryWrapper.eq("c_id", classroom.getCId());
+            }
+        }
+        appointmentQueryWrapper.orderByAsc("a_start_time");
         return Result.success(appointmentService.page(page, appointmentQueryWrapper));
     }
+
+    @GetMapping("/edit")
+    public Result editAppointment(@RequestParam Integer aid,
+                                  @RequestParam Integer uid,
+                                  @RequestParam Integer cid,
+                                  @RequestParam String date,
+                                  @RequestParam String startTime,
+                                  @RequestParam String endTime) throws ParseException {
+        return appointmentService.edit(aid, uid, cid, date, startTime, endTime);
+    }
+
 }

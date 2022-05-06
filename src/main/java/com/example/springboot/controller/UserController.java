@@ -153,4 +153,6 @@ public class UserController {
         return userService.getById(u_id).getUName();
     }
 
+    @GetMapping("/phone/{u_id}")
+    public String getPhoneById(@PathVariable Integer u_id) { return userService.getById(u_id).getUPhone(); }
 }
