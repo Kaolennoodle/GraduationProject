@@ -19,7 +19,7 @@ public class ScheduleTaskConfig {
 
     @Scheduled(cron = "0 */1 * * * ?")
     private void configureTasks() {
-        System.out.println("进入了定时任务：");
+        System.out.println("开始了定时任务：");
         QueryWrapper<Appointment> queryWrapper = new QueryWrapper<>();
         queryWrapper.between("a_status", 1, 2);
         List<Appointment> appointmentList = appointmentService.list(queryWrapper);
@@ -27,11 +27,11 @@ public class ScheduleTaskConfig {
         for(Appointment appointment: appointmentList) {
             if (appointment.getAEndTime().compareTo(now) < 0) {
                 appointment.setAStatus(3);
-                System.out.println("检测到aid为" + appointment.getAId() + "的预约已经过期，尝试将状态更新为3");
+                System.out.println("检测到aid为" + appointment.getAId() + "的预约已经过期，将状态更新为已过期（3）");
                 appointmentService.saveOrUpdate(appointment);
-            } else if (appointment.getAStartTime().compareTo(now) < 0) {
+            } else if (appointment.getAStatus() == 1 && appointment.getAStartTime().compareTo(now) < 0) {
                 appointment.setAStatus(2);
-                System.out.println("检测到aid为" + appointment.getAId() + "的预约已过开始时间，尝试将状态更新为2");
+                System.out.println("检测到aid为" + appointment.getAId() + "的预约已过开始时间，将状态更新为已开始（2）");
                 appointmentService.saveOrUpdate(appointment);
             }
         }
