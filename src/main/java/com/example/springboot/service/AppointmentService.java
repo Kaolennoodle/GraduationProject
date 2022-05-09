@@ -32,6 +32,9 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
 
         Appointment newA = constructor(null, uid, cid, date, startTime, endTime);
 
+        Date now = new Date();
+        if (newA.getAStartTime().compareTo(now) <= 0)
+            return Result.error(Constants.CODE_500, "预约开始时间不能早于当前时间");
         if (newA.getAStartTime().compareTo(newA.getAEndTime()) >= 0)
             return Result.error(Constants.CODE_500, "预约结束时间不能早于预约开始时间");
         if (validate(newA)) {
@@ -47,14 +50,15 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
      * @return 封装好的appointment对象
      */
     public Appointment constructor(Integer aid, Integer uid, Integer cid, String date, String startTime, String endTime) throws ParseException {
+
+        System.out.println("/n/n/n");
+        System.out.println("String startTime = " + startTime + ", String endTime = " + endTime + " And String Date = " + date);
+
         //将传入的日期、时间字符串转化为Date类型
-
-//        System.out.println("aid = " + aid + " uid = " + uid + " cid = " + cid + " date = " + date + " startTime = " + startTime + " endTime = " + endTime);
-
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
 
-        Date dateDate = df.parse(date);
+        Date dateDate = format.parse(date.replace("Z", " UTC"));
 
         System.out.println("dateDate = " + dateDate);
 
@@ -75,6 +79,9 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
 
         //将已有的参数全部赋给新Appointment对象
         Appointment appointment = new Appointment(aid, cid, uid, startTimeDate, endTimeDate, 1);
+
+        System.out.println("Appointment: startTimeDate = " + appointment.getAStartTime() + " And endTimeDate = " + appointment.getAEndTime());
+        System.out.println("/n/n/n");
         return appointment;
     }
 
@@ -91,6 +98,9 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
      */
     public Result edit(Integer aid, Integer uid, Integer cid, String date, String startTime, String endTime) throws ParseException {
         Appointment newA = constructor(aid, uid, cid, date, startTime, endTime);
+        Date now = new Date();
+        if (newA.getAStartTime().compareTo(now) <= 0)
+            return Result.error(Constants.CODE_500, "预约开始时间不能早于当前时间");
         if (newA.getAStartTime().compareTo(newA.getAEndTime()) >= 0)
             return Result.error(Constants.CODE_500, "预约结束时间不能早于预约开始时间");
         if (validate(newA))
