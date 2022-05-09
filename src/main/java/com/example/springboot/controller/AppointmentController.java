@@ -3,6 +3,7 @@ package com.example.springboot.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.springboot.common.Constants;
 import com.example.springboot.common.Result;
 import com.example.springboot.entity.Appointment;
 import com.example.springboot.entity.Classroom;
@@ -14,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -67,6 +70,19 @@ public class AppointmentController {
         return appointmentService.removeBatchByIds(a_ids);
     }
 
+    /**
+     * 分页查询
+     * @param pageNum
+     * @param pageSize
+     * @param u_id
+     * @param u_name
+     * @param c_name
+     * @param a_date
+     * @param a_time
+     * @param a_start_time
+     * @param a_end_time
+     * @return
+     */
     @GetMapping("/page")
     public Result findPage(@RequestParam Integer pageNum,
                            @RequestParam Integer pageSize,
@@ -90,19 +106,41 @@ public class AppointmentController {
             appointmentQueryWrapper.eq("u_id", u_id);
 
         if (u_name.length() > 0) {
+
+            //仅在用户表中读出相关用户的u_id
+            userQueryWrapper.select("u_id");
             userQueryWrapper.like("u_name", u_name);
             userList = userService.list(userQueryWrapper);
+
+            //如果查询不到则返回错误
+            if (userList.size() == 0)
+                return Result.error(Constants.CODE_500, "系统中不存在姓名类似“" + u_name + "”的用户");
+
+            //查询到u_id后将查询到的u_id放入u_ids中
+            List<String> u_ids = new ArrayList<>();
             for (User user : userList) {
-                appointmentQueryWrapper.eq("u_id", user.getUId());
+                u_ids.add(user.getUId().toString());
             }
+
+            //使用QueryWapper.in查询所有传入用户相关的预约信息
+            appointmentQueryWrapper.in("u_id", u_ids);
         }
+
+        //教室查询逻辑跟用户查询类似
         if (c_name.length() > 0) {
+            classroomQueryWrapper.select("c_id");
             classroomQueryWrapper.like("c_name", c_name);
             classroomList = classroomService.list(classroomQueryWrapper);
+            if (classroomList.size() == 0)
+                return Result.error(Constants.CODE_500, "系统中不存在名称类似“" + c_name + "”的教室");
+            List<String> c_ids = new ArrayList<>();
             for (Classroom classroom : classroomList) {
-                appointmentQueryWrapper.eq("c_id", classroom.getCId());
+                c_ids.add(classroom.getCId().toString());
             }
+            appointmentQueryWrapper.in("c_id", c_ids);
         }
+
+        //全部查询结束后，结果按照预约开始时间排序
         appointmentQueryWrapper.orderByAsc("a_start_time");
         return Result.success(appointmentService.page(page, appointmentQueryWrapper));
     }
