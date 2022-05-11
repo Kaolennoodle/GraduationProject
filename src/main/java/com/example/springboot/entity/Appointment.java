@@ -21,4 +21,5 @@ public class Appointment {
     private Date aStartTime;
     private Date aEndTime;
     private Integer aStatus;
+    private Integer aApprovalStatus;
 }

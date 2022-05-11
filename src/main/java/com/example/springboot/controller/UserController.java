@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -42,7 +43,6 @@ public class UserController {
      */
     @PostMapping
     public boolean save(@RequestBody User user) { //新增或更新
-        System.out.println("Output from UserController: " + user);
         return userService.saveUser(user);
     }
 
@@ -149,10 +149,25 @@ public class UserController {
      * @return
      */
     @GetMapping("/name/{u_id}")
-    public String getNameById(@PathVariable Integer u_id) {
-        return userService.getById(u_id).getUName();
+    public Result getNameById(@PathVariable Integer u_id) {
+        return Result.success(userService.getNameById(u_id));
     }
 
+    /**
+     * 通过u_id查询用户电话
+     * @param u_id
+     * @return
+     */
     @GetMapping("/phone/{u_id}")
     public String getPhoneById(@PathVariable Integer u_id) { return userService.getById(u_id).getUPhone(); }
+
+    /**
+     * 查询所有教室管理员id信息(u_id == 3)
+     * @return
+     */
+    @GetMapping("/classroom-admin")
+    public Result getAllClassroomAdmin() {
+        List<User> adminList = userService.list(new QueryWrapper<User>().select("u_id", "u_name").eq("u_type", 3));
+        return Result.success(adminList);
+    }
 }

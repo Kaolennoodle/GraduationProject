@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -71,7 +70,8 @@ public class AppointmentController {
     }
 
     /**
-     * 分页查询
+     * 通用分页查询
+     *
      * @param pageNum
      * @param pageSize
      * @param u_id
@@ -87,6 +87,8 @@ public class AppointmentController {
     public Result findPage(@RequestParam Integer pageNum,
                            @RequestParam Integer pageSize,
                            @RequestParam(defaultValue = "") Integer u_id,
+                           @RequestParam(defaultValue = "") Integer c_admin_id,
+                           @RequestParam(defaultValue = "") Integer a_approval_status,
                            @RequestParam(defaultValue = "") String u_name,
                            @RequestParam(defaultValue = "") String c_name,
                            @RequestParam(defaultValue = "") String a_date,
@@ -99,27 +101,53 @@ public class AppointmentController {
         QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
         QueryWrapper<Classroom> classroomQueryWrapper = new QueryWrapper<>();
 
-        List<User> userList;
-        List<Classroom> classroomList;
+        classroomQueryWrapper.select("c_id");
+        userQueryWrapper.select("u_id");
 
+        List<User> userList;
+        List<Integer> u_ids = new ArrayList<>();
+        List<Classroom> classroomList;
+        List<Integer> c_ids = new ArrayList<>();
+
+//        如果传入了用户id，则说明是用户在调用此接口，结果仅返回此用户创建的预约
         if (u_id != null)
             appointmentQueryWrapper.eq("u_id", u_id);
 
+//        如果传入了教室管理员id，则说明是教室管理员在调用此接口，结果仅返回预约教室为管理员所管理的教室的预约
+        System.out.println("c_admin_id = " + c_admin_id);
+        if (c_admin_id != null) {
+            classroomQueryWrapper.eq("c_admin_id", c_admin_id);
+            classroomList = classroomService.list(classroomQueryWrapper);
+            if (classroomList.size() == 0)
+                return Result.error(Constants.CODE_500, "您没有正在管理的教室，请联系系统管理员");
+
+            c_ids = new ArrayList<>();
+            for (Classroom classroom : classroomList) {
+                c_ids.add(classroom.getCId());
+            }
+
+            appointmentQueryWrapper.in("c_id", c_ids);
+        }
+
+//        如果传入了审核状态，那么仅返回符合条件的预约
+        if (a_approval_status != null) {
+            appointmentQueryWrapper.eq("a_approval_status", a_approval_status);
+        }
+
         if (u_name.length() > 0) {
 
-            //仅在用户表中读出相关用户的u_id
-            userQueryWrapper.select("u_id");
+            //在用户表中读出相关用户的u_id
             userQueryWrapper.like("u_name", u_name);
             userList = userService.list(userQueryWrapper);
 
             //如果查询不到则返回错误
             if (userList.size() == 0)
-                return Result.error(Constants.CODE_500, "系统中不存在姓名类似“" + u_name + "”的用户");
+                return Result.error(Constants.CODE_500, "结果中不存在姓名类似“" + u_name + "”的用户");
 
             //查询到u_id后将查询到的u_id放入u_ids中
-            List<String> u_ids = new ArrayList<>();
+            u_ids = new ArrayList<>();
             for (User user : userList) {
-                u_ids.add(user.getUId().toString());
+                u_ids.add(user.getUId());
             }
 
             //使用QueryWapper.in查询所有传入用户相关的预约信息
@@ -128,15 +156,17 @@ public class AppointmentController {
 
         //教室查询逻辑跟用户查询类似
         if (c_name.length() > 0) {
-            classroomQueryWrapper.select("c_id");
             classroomQueryWrapper.like("c_name", c_name);
             classroomList = classroomService.list(classroomQueryWrapper);
+
             if (classroomList.size() == 0)
-                return Result.error(Constants.CODE_500, "系统中不存在名称类似“" + c_name + "”的教室");
-            List<String> c_ids = new ArrayList<>();
+                return Result.error(Constants.CODE_500, "结果中不存在名称类似“" + c_name + "”的教室");
+
+            c_ids = new ArrayList<>();
             for (Classroom classroom : classroomList) {
-                c_ids.add(classroom.getCId().toString());
+                c_ids.add(classroom.getCId());
             }
+
             appointmentQueryWrapper.in("c_id", c_ids);
         }
 
@@ -145,6 +175,18 @@ public class AppointmentController {
         return Result.success(appointmentService.page(page, appointmentQueryWrapper));
     }
 
+    /**
+     * 更新预约
+     *
+     * @param aid
+     * @param uid
+     * @param cid
+     * @param date
+     * @param startTime
+     * @param endTime
+     * @return
+     * @throws ParseException
+     */
     @GetMapping("/edit")
     public Result editAppointment(@RequestParam Integer aid,
                                   @RequestParam Integer uid,
@@ -153,6 +195,30 @@ public class AppointmentController {
                                   @RequestParam String startTime,
                                   @RequestParam String endTime) throws ParseException {
         return appointmentService.edit(aid, uid, cid, date, startTime, endTime);
+    }
+
+    /**
+     * 批准预约请求
+     * @param a_id
+     * @return
+     */
+    @GetMapping("/approve/{a_id}")
+    public Result approveAppt(@PathVariable Integer a_id) {
+        if (appointmentService.saveOrUpdate(new Appointment(a_id, null, null, null, null, null, 2)))
+        return Result.success();
+        else return Result.error(Constants.CODE_500, "系统错误(在AppointController中)");
+    }
+
+    /**
+     * 拒绝预约请求
+     * @param a_id
+     * @return
+     */
+    @GetMapping("/reject/{a_id}")
+    public Result rejectAppt(@PathVariable Integer a_id) {
+        if (appointmentService.saveOrUpdate(new Appointment(a_id, null, null, null, null, null, 3)))
+            return Result.success();
+        else return Result.error(Constants.CODE_500, "系统错误(在AppointController中)");
     }
 
 }

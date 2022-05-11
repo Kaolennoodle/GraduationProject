@@ -59,4 +59,15 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         }
         return new Result(Constants.CODE_502, "该邮箱已被注册", null);
     }
+
+    /**
+     * 通过id获取用户姓名
+     * @param u_id
+     * @return
+     */
+    public User getNameById(Integer u_id) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("u_name").eq("u_id", u_id);
+        return getOne(queryWrapper);
+    }
 }

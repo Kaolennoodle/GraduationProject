@@ -51,16 +51,16 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
      */
     public Appointment constructor(Integer aid, Integer uid, Integer cid, String date, String startTime, String endTime) throws ParseException {
 
-        System.out.println("/n/n/n");
-        System.out.println("String startTime = " + startTime + ", String endTime = " + endTime + " And String Date = " + date);
-
         //将传入的日期、时间字符串转化为Date类型
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
 
-        Date dateDate = format.parse(date.replace("Z", " UTC"));
-
-        System.out.println("dateDate = " + dateDate);
+        Date dateDate;
+        try {
+            dateDate = format.parse(date.replace("Z", " UTC"));
+        } catch (Exception e) {
+            dateDate = df.parse(date.replace("Z", " UTC"));
+        }
 
         Date startTimeDate = null;
         Date endTimeDate = null;
@@ -78,10 +78,7 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
         endTimeDate.setDate(dateDate.getDate());
 
         //将已有的参数全部赋给新Appointment对象
-        Appointment appointment = new Appointment(aid, cid, uid, startTimeDate, endTimeDate, 1);
-
-        System.out.println("Appointment: startTimeDate = " + appointment.getAStartTime() + " And endTimeDate = " + appointment.getAEndTime());
-        System.out.println("/n/n/n");
+        Appointment appointment = new Appointment(aid, cid, uid, startTimeDate, endTimeDate, 1, null);
         return appointment;
     }
 
