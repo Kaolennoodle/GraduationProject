@@ -79,7 +79,8 @@ public class ClassroomController {
                                      @RequestParam(defaultValue = "") String c_name,
                                      @RequestParam(defaultValue = "") Integer c_volume,
                                      @RequestParam(defaultValue = "") Integer c_building,
-                                     @RequestParam(defaultValue = "") Integer c_floor) {
+                                     @RequestParam(defaultValue = "") Integer c_floor,
+                                     @RequestParam(defaultValue = "") Integer c_admin_id) {
         IPage<Classroom> page = new Page<>(pageNum, pageSize);
         QueryWrapper<Classroom> queryWrapper = new QueryWrapper<>();
 
@@ -91,6 +92,8 @@ public class ClassroomController {
             queryWrapper.eq("c_building", c_building);
         if (c_floor != null)
             queryWrapper.eq("c_floor", c_floor);
+        if (c_admin_id != null)
+            queryWrapper.eq("c_admin_id", c_admin_id);
         queryWrapper.orderByDesc("c_create_time");
         return classroomService.page(page, queryWrapper);
     }

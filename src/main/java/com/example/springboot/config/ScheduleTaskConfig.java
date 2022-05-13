@@ -21,8 +21,18 @@ public class ScheduleTaskConfig {
     private void configureTasks() {
         System.out.println("开始了定时任务：");
         QueryWrapper<Appointment> queryWrapper = new QueryWrapper<>();
-        queryWrapper.between("a_status", 1, 2);
+        queryWrapper.between("a_status", 1, 3);
         List<Appointment> appointmentList = appointmentService.list(queryWrapper);
+        for (Appointment appointment: appointmentList) {
+            if (appointment.getAApprovalStatus() == 3) {
+                System.out.println("检测到aid为" + appointment.getAId() + "的预约已被拒绝，将状态更新为已失效（4）");
+                appointment.setAStatus(4);
+                appointmentService.saveOrUpdate(appointment);
+            }
+        }
+        queryWrapper = new QueryWrapper<>();
+        queryWrapper.between("a_status", 1, 2);
+        appointmentList = appointmentService.list(queryWrapper);
         Date now = new Date();
         for(Appointment appointment: appointmentList) {
             if (appointment.getAEndTime().compareTo(now) < 0) {
