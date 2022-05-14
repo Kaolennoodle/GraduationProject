@@ -3,8 +3,12 @@ package com.example.springboot.controller;
 import com.example.springboot.common.Constants;
 import com.example.springboot.common.Result;
 import com.example.springboot.entity.Appointment;
+import com.example.springboot.entity.Classroom;
+import com.example.springboot.entity.Message;
+import com.example.springboot.entity.User;
 import com.example.springboot.service.AppointmentService;
 import com.example.springboot.service.ClassroomService;
+import com.example.springboot.service.MessageService;
 import com.example.springboot.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +26,9 @@ public class AppointmentController {
     private UserService userService;
     @Autowired
     private ClassroomService classroomService;
+
+    @Autowired
+    private MessageService messageService;
 
     /**
      * 新建预约
@@ -119,8 +126,30 @@ public class AppointmentController {
      */
     @GetMapping("/approve/{a_id}")
     public Result approveAppt(@PathVariable Integer a_id) {
-        if (appointmentService.saveOrUpdate(new Appointment(a_id, null, null, null, null, null, 2)))
-        return Result.success();
+        if (appointmentService.saveOrUpdate(new Appointment(a_id, null, null, null, null, null, 2))) {
+            Message message = new Message();
+            Appointment appointment = appointmentService.getById(a_id);
+            User user = userService.getById(appointment.getUId());
+            Classroom classroom = classroomService.getById(appointment.getCId());
+            User cAdmin = userService.getById(classroom.getCAdminId());
+            message.setMTitle("您的预约已获批准！");
+            message.setMContent("你在" + classroom.getCName() +
+                    "教室，开始于" + appointment.getAStartTime() +
+                    "的预约已获批准！请在预约时间内到达预约教室。有问题请及时联系教室管理员：" + cAdmin.getUName() + " " + cAdmin.getUPhone() +
+                    " 祝您学习生活愉快！");
+            message.setMReceiverId(user.getUId());
+            messageService.save(message);
+            message.setMId(null);
+            message.setMReceiverId(cAdmin.getUId());
+            message.setMTitle("您已批准一个预约");
+            message.setMContent("您批准了来自" + user.getUName() +
+                    "，在您管理的教室（" + classroom.getCName() +
+                    "），开始于" + appointment.getAStartTime() +
+                    "的预约。在预约进行期间请保持手机畅通，以便用户及时联系。如有特殊情况，请及时通知用户：" + user.getUName() + " " + user.getUPhone() +
+                    "。祝您生活愉快！");
+            messageService.save(message);
+            return Result.success();
+        }
         else return Result.error(Constants.CODE_500, "系统错误(在AppointController中)");
     }
 
@@ -129,10 +158,45 @@ public class AppointmentController {
      * @param a_id
      * @return
      */
-    @GetMapping("/reject/{a_id}")
-    public Result rejectAppt(@PathVariable Integer a_id) {
-        if (appointmentService.saveOrUpdate(new Appointment(a_id, null, null, null, null, null, 3)))
+    @GetMapping("/reject")
+    public Result rejectAppt(@RequestParam Integer a_id, @RequestParam String rejectReason) {
+        if (appointmentService.saveOrUpdate(new Appointment(a_id, null, null, null, null, null, 3))) {
+            Message message = new Message();
+            Appointment appointment = appointmentService.getById(a_id);
+            User user = userService.getById(appointment.getUId());
+            Classroom classroom = classroomService.getById(appointment.getCId());
+            User cAdmin = userService.getById(classroom.getCAdminId());
+            message.setMTitle("很抱歉，您的预约遭到拒绝。");
+            String content = "你在" + classroom.getCName() +
+                    "教室，开始于" + appointment.getAStartTime() +
+                    "的预约遭到拒绝，";
+            if (rejectReason != null) {
+                content = content + "原因是：" + rejectReason + "。";
+            } else {
+                content = content + "管理员未给出具体原因。";
+            }
+            content = content + "如有疑问，请联系管理员：" + cAdmin.getUName() + " " + cAdmin.getUPhone() + " 或尝试重新申请。祝您学习生活愉快！";
+            message.setMContent(content);
+            message.setMReceiverId(user.getUId());
+            messageService.save(message);
+            message.setMId(null);
+            message.setMReceiverId(cAdmin.getUId());
+            message.setMTitle("您已拒绝一个预约。");
+            content = "您拒绝了来自" + user.getUName() +
+                    "，在您管理的教室（" + classroom.getCName() +
+                    "），开始于" + appointment.getAStartTime() +
+                    "的预约";
+            if (rejectReason != null) {
+                content = content + "，原因是：" + rejectReason + "。";
+            } else {
+                content = content + "且未给出具体原因。";
+            }
+            content = content + "如有需要，您可以尝试联系用户说明具体情况：" + user.getUName() + " " + user.getUPhone() +
+                    "。祝您生活愉快！";
+            message.setMContent(content);
+            messageService.save(message);
             return Result.success();
+        }
         else return Result.error(Constants.CODE_500, "系统错误(在AppointController中)");
     }
 

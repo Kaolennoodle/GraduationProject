@@ -6,16 +6,20 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.springboot.common.Constants;
 import com.example.springboot.common.Result;
 import com.example.springboot.controller.dto.UserDTO;
+import com.example.springboot.entity.Message;
 import com.example.springboot.entity.User;
 import com.example.springboot.exception.ServiceException;
 import com.example.springboot.mapper.UserMapper;
 import com.example.springboot.utils.TokenUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService extends ServiceImpl<UserMapper, User> {
-    
+
+    @Autowired
+    MessageService messageService;
     public boolean saveUser(User user) {
         return saveOrUpdate(user);
     }
@@ -54,6 +58,11 @@ public class UserService extends ServiceImpl<UserMapper, User> {
             User user = new User();
             BeanUtil.copyProperties(userDTO, user, true);
             if (save(user)) {
+                Message message = new Message();
+                message.setMTitle("欢迎来到蓝星智能教室！");
+                message.setMContent("欢迎来到蓝星智能教室！首次登录后请尽快完善您的个人信息，绑定邮箱，以防影响您的正常使用。祝您学习生活愉快！");
+                message.setMReceiverId(user.getUId());
+                messageService.save(message);
                 return new Result(Constants.CODE_200, "", null);
             }
         }

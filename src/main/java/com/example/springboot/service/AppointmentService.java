@@ -8,6 +8,7 @@ import com.example.springboot.common.Constants;
 import com.example.springboot.common.Result;
 import com.example.springboot.entity.Appointment;
 import com.example.springboot.entity.Classroom;
+import com.example.springboot.entity.Message;
 import com.example.springboot.entity.User;
 import com.example.springboot.mapper.AppointmentMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
     ClassroomService classroomService;
     @Autowired
     UserService userService;
+
+    @Autowired
+    MessageService messageService;
 
     /**
      * 新增预约
@@ -50,6 +54,21 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
             return Result.error(Constants.CODE_500, "预约结束时间不能早于预约开始时间");
         if (validate(newA)) {
             if (save(newA)) ;
+            User cAdmin = classroomService.getAdminByCid(newA.getCId());
+            User user = userService.getById(newA.getUId());
+            Classroom classroom = classroomService.getById(newA.getCId());
+            Message message = new Message(null, "您的预约申请已提交！",
+                    "您在" + classroom.getCName() + "教室，开始于" + newA.getAStartTime() + "的预约申请已提交！" + "我们已发送申请至教室管理员，管理员会尽快处理。如果预约状态长时间没有变化，可以尝试联系教室管理员："
+                            + cAdmin.getUName() + " " + cAdmin.getUPhone() + "。祝您学习生活愉快！", null, newA.getUId(), null, null);
+            messageService.save(message);
+
+            message.setMReceiverId(cAdmin.getUId());
+            message.setMTitle("您收到了新的预约申请！");
+            message.setMContent("有用户预约了您所管理的教室（" + classroom.getCName() +
+                    "），请及时在”预约管理->新增预约“中处理。如有特殊情况，可以尝试联系用户：" + user.getUName() + " " + user.getUPhone() +
+                    "。祝您生活愉快！");
+            message.setMId(null);
+            messageService.save(message);
             return Result.success();
         } else
             return Result.error(Constants.CODE_500, "预约时间与已有预约冲突");
@@ -106,14 +125,29 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
      */
     public Result edit(Integer aid, Integer uid, Integer cid, String date, String startTime, String endTime) throws ParseException {
         Appointment newA = constructor(aid, uid, cid, date, startTime, endTime);
+        Appointment oldA = getById(newA.getAId());
+        boolean flag = true; //传入的预约信息是否和数据库中的预约信息一致
+        if (!newA.getUId().equals(oldA.getUId()))
+            flag = false;
+        if (!newA.getCId().equals(oldA.getCId()))
+            flag = false;
+        if (newA.getAStartTime().compareTo(oldA.getAStartTime()) != 0)
+            flag = false;
+        if (newA.getAEndTime().compareTo(oldA.getAEndTime()) != 0)
+            flag = false;
+
+        if (flag) {
+            return new Result(Constants.CODE_403, "您并未进行任何修改", null);
+        }
         Date now = new Date();
         if (newA.getAStartTime().compareTo(now) <= 0)
             return Result.error(Constants.CODE_500, "预约开始时间不能早于当前时间");
         if (newA.getAStartTime().compareTo(newA.getAEndTime()) >= 0)
             return Result.error(Constants.CODE_500, "预约结束时间不能早于预约开始时间");
-        if (validate(newA))
+        if (validate(newA)) {
+            newA.setAApprovalStatus(1);
             saveOrUpdate(newA);
-        else
+        } else
             return Result.error(Constants.CODE_500, "预约时间与已有预约冲突");
         return Result.success();
     }
@@ -313,7 +347,7 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
 //            for(int i=list.size()-1;i>=0;i--){
 //                list.remove(i);
 //            }
-            for (int i = allAppts.size() - 1; i >= 0; i --) {
+            for (int i = allAppts.size() - 1; i >= 0; i--) {
                 i1 = startTime.compareTo(allAppts.get(i).getAStartTime());
                 i2 = startTime.compareTo(allAppts.get(i).getAEndTime());
                 i3 = endTime.compareTo(allAppts.get(i).getAStartTime());
@@ -326,7 +360,7 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
             }
 
             if (qualifiedApptList.size() != 0) {
-                for (Appointment qualifiedAppt: qualifiedApptList) {
+                for (Appointment qualifiedAppt : qualifiedApptList) {
                     qualifiedApptIdList.add(qualifiedAppt.getAId());
                 }
 
@@ -403,6 +437,7 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
         appointmentQueryWrapper.orderByDesc("a_create_time");
         return Result.success(page(page, appointmentQueryWrapper));
     }
+
     public void setFullDate(Date originalDate, Date targetDate) {
         targetDate.setYear(originalDate.getYear());
         targetDate.setMonth(originalDate.getMonth());
