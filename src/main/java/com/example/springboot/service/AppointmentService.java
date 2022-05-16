@@ -123,10 +123,11 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
      * @param endTime
      * @return Result对象
      */
-    public Result edit(Integer aid, Integer uid, Integer cid, String date, String startTime, String endTime) throws ParseException {
+    public Result edit(Integer aid, Integer uid, Integer cid, User operator, String date, String startTime, String endTime) throws ParseException {
         Appointment newA = constructor(aid, uid, cid, date, startTime, endTime);
         Appointment oldA = getById(newA.getAId());
         boolean flag = true; //传入的预约信息是否和数据库中的预约信息一致
+        boolean userChanged = false; //预约用户是否发生改变
         if (!newA.getUId().equals(oldA.getUId()))
             flag = false;
         if (!newA.getCId().equals(oldA.getCId()))
@@ -149,6 +150,42 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
             saveOrUpdate(newA);
         } else
             return Result.error(Constants.CODE_500, "预约时间与已有预约冲突");
+
+        Message message = new Message();
+        String content = "";
+
+        if (userChanged) {
+            message.setMReceiverId(newA.getUId());
+            message.setMTitle("您有新的预约！");
+            content = "管理员给您分配了一条新的预约，预约教室为：" + classroomService.getById(newA.getCId()).getCName() +
+            "，开始时间为：" + newA.getAStartTime() + "。您可以在”我的预约“菜单中查看详细信息，祝您学习生活愉快！";
+            message.setMContent(content);
+            messageService.save(message);
+            message.setMId(null);
+            message.setMReceiverId(oldA.getUId());
+            message.setMTitle("您有一条预约被取消。");
+            content = "很抱歉，您在" + classroomService.getById(oldA.getCId()).getCName() +
+                    "教室，开始于" + oldA.getAStartTime() + "的预约已经被管理员取消。操作人：" + operator.getUName() + " " + operator.getUPhone() +
+                    " 对此造成的不便，我们深感抱歉。";
+            message.setMContent(content);
+            messageService.save(message);
+        } else {
+            message.setMReceiverId(uid);
+            User cAdmin = userService.getById(classroomService.getById(newA.getCId()).getCAdminId());
+            if (operator.getUId().equals(uid)) {
+                message.setMTitle("您修改了预约请求。");
+                message.setMContent("您已成功修改您在" + classroomService.getById(oldA.getCId()).getCName() +
+                        "，开始于" + oldA.getAStartTime() + " 的预约请求。教室管理员会尽快处理您的预约请求，如果预约状态长时间没有更新，请尝试联系管理员：" +
+                        cAdmin.getUName() + " " + cAdmin.getUPhone() + " 祝您学习生活愉快！");
+                messageService.save(message);
+                message.setMId(null);
+            } else {
+                message.setMTitle("您的预约已被修改。");
+                message.setMContent("管理员修改了您在" + classroomService.getById(oldA.getCId()).getCName() +
+                        "，开始于" + oldA.getAStartTime() + " 的预约请求。您可以在“我的预约”菜单中查看预约详情。如有疑问，请联系管理员："
+                        + operator.getUName() + " " + operator.getUPhone() + " 祝您学习生活愉快！");
+            }
+        }
         return Result.success();
     }
 

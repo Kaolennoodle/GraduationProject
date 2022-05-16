@@ -38,9 +38,13 @@ public class TokenUtils {
         try {
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
             String token = request.getHeader("token");
+            System.out.println("token: " + token);
             if(StrUtil.isNotBlank(token)) {
                 String userId = JWT.decode(token).getAudience().get(0);
-                return staticUserService.getById(Integer.valueOf(userId));
+                System.out.println("userId: " + userId);
+                User user = staticUserService.getById(Integer.valueOf(userId));
+                System.out.println("user: " + user);
+                return user;
             }
         } catch (Exception e) {
             return null;

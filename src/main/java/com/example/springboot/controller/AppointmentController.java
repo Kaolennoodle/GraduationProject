@@ -10,6 +10,7 @@ import com.example.springboot.service.AppointmentService;
 import com.example.springboot.service.ClassroomService;
 import com.example.springboot.service.MessageService;
 import com.example.springboot.service.UserService;
+import com.example.springboot.utils.TokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -116,7 +117,7 @@ public class AppointmentController {
                                   @RequestParam String date,
                                   @RequestParam String startTime,
                                   @RequestParam String endTime) throws ParseException {
-        return appointmentService.edit(aid, uid, cid, date, startTime, endTime);
+        return appointmentService.edit(aid, uid, cid, TokenUtils.getCurrentUser(), date, startTime, endTime);
     }
 
     /**
