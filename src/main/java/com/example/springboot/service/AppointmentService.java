@@ -17,7 +17,9 @@ import org.springframework.stereotype.Service;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -286,9 +288,9 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
             e.printStackTrace();
         }
 
-        System.out.println("a_date = " + date);
-        System.out.println("a_start_time = " + startTime);
-        System.out.println("a_end_time = " + endTime);
+//        System.out.println("a_date = " + date);
+//        System.out.println("a_start_time = " + startTime);
+//        System.out.println("a_end_time = " + endTime);
 
 /**
  * 接下来的if-else代码块将根据传入的日期、开始时间和结束时间拼装成合理、便于数据库查询的带日期的开始时间与结束时间
@@ -355,9 +357,9 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
             }
         }
 
-        System.out.println("After transform:");
-        System.out.println("a_start_time = " + startTime);
-        System.out.println("a_end_time = " + endTime);
+//        System.out.println("After transform:");
+//        System.out.println("a_start_time = " + startTime);
+//        System.out.println("a_end_time = " + endTime);
 
         IPage<Appointment> page = new Page<>(pageNum, pageSize);
         QueryWrapper<Appointment> appointmentQueryWrapper = new QueryWrapper<>();
@@ -373,10 +375,10 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
         List<Integer> c_ids = new ArrayList<>();
 //        如果传入了开始时间和结束时间，则加入筛选条件
         if (startTime != null && endTime != null) {
-            List<Appointment> allAppts = new ArrayList<>();
-            List<Appointment> qualifiedApptList = new ArrayList<>();
+            List<Appointment> allAppts;
+            List<Appointment> qualifiedApptList;
             List<Integer> qualifiedApptIdList = new ArrayList<>();
-            System.out.println("当前查询的开始时间为：" + startTime + " 结束时间为：" + endTime);
+//            System.out.println("当前查询的开始时间为：" + startTime + " 结束时间为：" + endTime);
             allAppts = list();
             qualifiedApptList = allAppts;
             System.out.println(allAppts);
@@ -486,5 +488,54 @@ public class AppointmentService extends ServiceImpl<AppointmentMapper, Appointme
         targetDate.setMinutes(originalDate.getMinutes());
         targetDate.setSeconds(originalDate.getSeconds());
         return targetDate;
+    }
+
+
+    /**
+     * 获取近几天的教室利用率
+     * @param days 天数
+     * @return 占用百分比
+     */
+    public float getOccupationRatio(int days) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, days);
+
+//        将开始时间设为当天早晨
+        Date startTime = new Date();
+//        将结束时间设为几天后
+        Date endTime = calendar.getTime();
+
+//                        为了避免查不到预约，我们把赋予了日期了的时间调整至覆盖全天的预约
+        startTime.setHours(7);
+        startTime.setMinutes(0);
+        endTime.setHours(23);
+        endTime.setMinutes(0);
+
+
+        List<Appointment> allAppts;
+        List<Appointment> qualifiedApptList;
+        allAppts = list();
+        qualifiedApptList = allAppts;
+        int i1, i2, i3, i4;
+        for (int i = allAppts.size() - 1; i >= 0; i--) {
+            i1 = startTime.compareTo(allAppts.get(i).getAStartTime());
+            i2 = startTime.compareTo(allAppts.get(i).getAEndTime());
+            i3 = endTime.compareTo(allAppts.get(i).getAStartTime());
+            i4 = endTime.compareTo(allAppts.get(i).getAEndTime());
+            if ((i1 < 0 && i3 < 0) || (i2 > 0 && i4 > 0)) {
+//                System.out.println("id为" + allAppts.get(i).getAId() + "的预约不符合要求，因为其开始时间为：" + allAppts.get(i).getAStartTime() + " 结束时间为：" + allAppts.get(i).getAEndTime());
+                qualifiedApptList.remove(allAppts.get(i));
+            }
+        }
+
+        long apptTime = 0;
+        for (Appointment appointment: qualifiedApptList) {
+            apptTime += appointment.getAEndTime().getTime() - appointment.getAStartTime().getTime();
+        }
+        apptTime = apptTime / 60000;
+        float apptTimeFloat = apptTime;
+        float totalTime = 900 * days * (float) classroomService.list().size();
+        int rate = (int) (apptTimeFloat / totalTime * 100);
+        return rate;
     }
 }
