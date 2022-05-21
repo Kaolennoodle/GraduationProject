@@ -53,8 +53,14 @@ public class UserController {
     @GetMapping
     public List<User> findAll() {
         List<User> list = userService.list();
-        System.out.println(list);
         return list;
+    }
+
+    @GetMapping("/num")
+    public Result getTotalNum() {
+        List<User> list = userService.list();
+        int total = list.size();
+        return Result.success(total);
     }
 
     /**
@@ -169,5 +175,10 @@ public class UserController {
     public Result getAllClassroomAdmin() {
         List<User> adminList = userService.list(new QueryWrapper<User>().select("u_id", "u_name").eq("u_type", 3));
         return Result.success(adminList);
+    }
+
+    @GetMapping("/active-ratio")
+    public Result getActiveRatio() {
+        return Result.success(userService.getActiveRatio());
     }
 }

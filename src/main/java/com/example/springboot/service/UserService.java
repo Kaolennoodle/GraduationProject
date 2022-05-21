@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.springboot.common.Constants;
 import com.example.springboot.common.Result;
 import com.example.springboot.controller.dto.UserDTO;
+import com.example.springboot.entity.Appointment;
 import com.example.springboot.entity.Message;
 import com.example.springboot.entity.User;
 import com.example.springboot.exception.ServiceException;
@@ -15,11 +16,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class UserService extends ServiceImpl<UserMapper, User> {
 
     @Autowired
     MessageService messageService;
+    @Autowired
+    AppointmentService appointmentService;
+
     public boolean saveUser(User user) {
         return saveOrUpdate(user);
     }
@@ -78,5 +85,30 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.select("u_name").eq("u_id", u_id);
         return getOne(queryWrapper);
+    }
+
+    /**
+     * 获取活跃用户占比
+     * @return
+     */
+    public int getActiveRatio() {
+        QueryWrapper<Appointment> appointmentQueryWrapper = new QueryWrapper<>();
+        appointmentQueryWrapper.between("a_status", 1, 2);
+        List<Appointment> appointmentList = appointmentService.list(appointmentQueryWrapper);
+        List<Integer> userIds = new ArrayList<>();
+        for (Appointment appointment: appointmentList) {
+            if (userIds.size() == 0) {
+                userIds.add(appointment.getUId());
+            }
+            for (Integer i: userIds) {
+                if (!appointment.getUId().equals(i)) {
+                    userIds.add(appointment.getUId());
+                    break;
+                }
+            }
+        }
+        float total = list().size();
+        int ratio = (int) (userIds.size() / total * 100);
+        return ratio;
     }
 }
