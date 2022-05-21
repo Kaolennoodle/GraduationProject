@@ -3,6 +3,7 @@ package com.example.springboot.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.springboot.common.Result;
 import com.example.springboot.entity.Classroom;
 import com.example.springboot.service.ClassroomService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,5 +107,24 @@ public class ClassroomController {
     @GetMapping("/{c_id}")
     public Classroom getById(@PathVariable Integer c_id) {
         return classroomService.getById(c_id);
+    }
+
+    /**
+     * 获取教室数量
+     * @return
+     */
+    @GetMapping("/num")
+    public Result getNum() {
+        List<Classroom> classroomList = classroomService.list();
+        return Result.success(classroomList.size());
+    }
+
+    /**
+     * 获取活跃教室数量占比
+     * @return
+     */
+    @GetMapping("/active-ratio")
+    public Result getActiveNum() {
+        return Result.success(classroomService.getActiveRatio());
     }
 }
