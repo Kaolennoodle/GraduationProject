@@ -1,5 +1,6 @@
 package com.example.springboot.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.springboot.common.Constants;
 import com.example.springboot.common.Result;
 import com.example.springboot.entity.Appointment;
@@ -199,6 +200,28 @@ public class AppointmentController {
             return Result.success();
         }
         else return Result.error(Constants.CODE_500, "系统错误(在AppointController中)");
+    }
+
+    @GetMapping("/active-num")
+    public Result getActiveNum() {
+        QueryWrapper<Appointment> queryWrapper = new QueryWrapper<>();
+        queryWrapper.between("a_status", 1, 2);
+        return Result.success(appointmentService.list(queryWrapper).size());
+    }
+
+    @GetMapping("/all-num")
+    public Result getAllNum() {
+        return Result.success(appointmentService.list().size());
+    }
+
+    @GetMapping("/ocpt-ratio-1")
+    public Result getOccupationRatioOn1Day() {
+        return Result.success(appointmentService.getOccupationRatio(1));
+    }
+
+    @GetMapping("/ocpt-ratio-5")
+    public Result getOccupationRatioOn5Days() {
+        return Result.success(appointmentService.getOccupationRatio(5));
     }
 
 }
